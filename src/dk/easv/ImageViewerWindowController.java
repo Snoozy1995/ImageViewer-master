@@ -9,7 +9,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javafx.fxml.FXML;
 import javafx.scene.Group;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
@@ -25,11 +24,7 @@ public class ImageViewerWindowController {
     private final List<SlideImage> images = new ArrayList<>();
     private int currentImageIndex = 0;
 
-    @FXML
-    Parent root;
-
-    @FXML
-    private ImageView imageView;
+    @FXML private ImageView imageView;
     @FXML private Button btnStartSlide;
 
     @FXML private Text currentFileText;
@@ -40,7 +35,6 @@ public class ImageViewerWindowController {
     boolean runSlide=false;
     ExecutorService slideExecutor = Executors.newSingleThreadExecutor(); //@todo rewrite to use task approach.
     ExecutorService colorCountExecutor=Executors.newSingleThreadExecutor(); //@todo rewrite to use task approach.
-    ExecutorService selectFilesExecutor=Executors.newSingleThreadExecutor();
 
     @FXML void handleBtnStartSlide(){
         if(runSlide){
@@ -101,7 +95,7 @@ public class ImageViewerWindowController {
         if (files.isEmpty()) return;
         files.forEach((File f)->images.add(new SlideImage(f)));
         if(images.isEmpty()){
-            btnGroup.setDisable(false);
+            btnGroup.setDisable(true);
             return;
         }
         btnGroup.setDisable(false);
