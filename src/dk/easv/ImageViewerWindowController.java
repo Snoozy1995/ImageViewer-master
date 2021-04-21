@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javafx.fxml.FXML;
 import javafx.scene.Group;
@@ -24,7 +23,7 @@ public class ImageViewerWindowController {
     private int currentImageIndex = 0;
 
     @FXML private ImageView imageView;
-    @FXML private Button btnStartSlide;
+    @FXML private Button btnToggleSlide;
 
     @FXML private Text currentFileText;
     @FXML private Text rgbStatsText;
@@ -44,28 +43,28 @@ public class ImageViewerWindowController {
         });
     }
 
-    @FXML void handleBtnStartSlide(){
+    @FXML void handleBtnToggleSlide(){
         if(runSlide){
             stopSlide();
             return;
         }
         if(images.isEmpty()) return;
         runSlide=true;
-        btnStartSlide.setText("Stop slideshow...");
+        btnToggleSlide.setText("Stop slideshow...");
         timerChange();
     }
 
     private void stopSlide(){
         runSlide=false;
         future.cancel(false);
-        btnStartSlide.setText("Start slideshow...");
+        btnToggleSlide.setText("Start slideshow...");
     }
 
     private void timerChange(){
         if(future!=null){
             future.cancel(true);
         }
-        future=slideExecutor.scheduleAtFixedRate(()-> handleBtnNextAction(),(int)timeSlider.getValue(),(int)timeSlider.getValue(), TimeUnit.SECONDS);
+        future=slideExecutor.scheduleAtFixedRate(this::handleBtnNextAction,(int)timeSlider.getValue(),(int)timeSlider.getValue(), TimeUnit.SECONDS);
     }
 
     private void colorCount() {
@@ -75,12 +74,12 @@ public class ImageViewerWindowController {
                 blueCount=0,greenCount=0,redCount=0;
         for(int y = 0; y < h; y++) {
             for(int x = 0; x < w; x++) {
-                Color mycolor = p.getColor(x, y);
-                if(mycolor.getBlue()> mycolor.getRed()&&mycolor.getBlue()> mycolor.getGreen()){
+                Color myColor = p.getColor(x, y);
+                if(myColor.getBlue()> myColor.getRed()&&myColor.getBlue()> myColor.getGreen()){
                     blueCount++;
-                }else if(mycolor.getRed()> mycolor.getBlue()&&mycolor.getRed()> mycolor.getGreen()){
+                }else if(myColor.getRed()> myColor.getBlue()&&myColor.getRed()> myColor.getGreen()){
                     redCount++;
-                }else if(mycolor.getGreen()> mycolor.getRed()&&mycolor.getGreen()>mycolor.getBlue()){
+                }else if(myColor.getGreen()> myColor.getRed()&&myColor.getGreen()>myColor.getBlue()){
                     blueCount++;
                 }
             }

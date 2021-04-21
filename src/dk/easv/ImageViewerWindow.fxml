@@ -12,60 +12,60 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="703.0" prefWidth="1091.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.ImageViewerWindowController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="703.0" prefWidth="1091.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.ImageViewerWindowController">
     <top>
         <HBox alignment="CENTER_LEFT" prefHeight="57.0" prefWidth="1091.0" BorderPane.alignment="CENTER">
-            <children>
-            <AnchorPane prefHeight="57.0" prefWidth="1088.0">
-               <children>
-                        <Button id="btnLoad" fx:id="btnLoad" layoutX="14.0" layoutY="15.0" mnemonicParsing="false" onAction="#handleBtnLoadAction" prefHeight="27.0" prefWidth="94.0" text="Load images">
-                            <opaqueInsets>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </opaqueInsets>
-                        </Button>
-                  <Group fx:id="btnGroup" disable="true" layoutX="149.0" layoutY="16.0">
-                     <children>
-                        <Button id="btnPrevious" fx:id="btnStartSlide" layoutX="-34.0" mnemonicParsing="false" onAction="#handleBtnStartSlide" text="Start slideshow">
-                           <opaqueInsets>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </opaqueInsets>
-                        </Button>
-                              <Button id="btnNext" fx:id="btnNext" layoutX="105.0" mnemonicParsing="false" onAction="#handleBtnNextAction" prefHeight="25.0" text="-&gt;" />
-                              <Button id="btnPrevious" fx:id="btnPrevious" layoutX="72.0" mnemonicParsing="false" onAction="#handleBtnPreviousAction" text="&lt;-">
-                                  <opaqueInsets>
-                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                  </opaqueInsets>
-                              </Button>
-                     </children>
-                  </Group>
-                  <VBox layoutX="322.0" layoutY="1.0" prefHeight="57.0" prefWidth="572.0">
-                     <children>
-                        <Text fx:id="currentFileText" strokeType="OUTSIDE" strokeWidth="0.0" text="Current file: " wrappingWidth="350.13671875">
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                           <VBox.margin>
-                              <Insets left="20.0" top="5.0" />
-                           </VBox.margin>
-                        </Text>
-                        <Text fx:id="rgbStatsText" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="331.13671875">
-                           <font>
-                              <Font size="11.0" />
-                           </font>
-                           <VBox.margin>
-                              <Insets left="20.0" />
-                           </VBox.margin>
-                        </Text>
-                     </children>
-                  </VBox>
-                  <Slider fx:id="timeSlider" blockIncrement="1.0" layoutX="934.0" layoutY="22.0" majorTickUnit="1.0" max="5.0" min="1.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0" />
-                  <Text layoutX="960.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Slideshow speed" />
-               </children>
-            </AnchorPane>
-            </children>
             <opaqueInsets>
-                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </opaqueInsets>
+            <AnchorPane prefHeight="57.0" prefWidth="1088.0">
+                <Button id="btnLoad" layoutX="14.0" layoutY="15.0" mnemonicParsing="false"
+                        onAction="#handleBtnLoadAction" prefHeight="27.0" prefWidth="94.0" text="Load images">
+                    <opaqueInsets>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </opaqueInsets>
+                </Button>
+                <Group fx:id="btnGroup" disable="true" layoutX="149.0" layoutY="16.0">
+                    <Button id="btnPrevious" fx:id="btnToggleSlide" layoutX="-34.0" mnemonicParsing="false"
+                            onAction="#handleBtnToggleSlide" text="Start slideshow">
+                        <opaqueInsets>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                        </opaqueInsets>
+                    </Button>
+                    <Button id="btnNext" layoutX="105.0" mnemonicParsing="false"
+                            onAction="#handleBtnNextAction" prefHeight="25.0" text="-&gt;"/>
+                    <Button id="btnPrevious" layoutX="72.0" mnemonicParsing="false"
+                            onAction="#handleBtnPreviousAction" text="&lt;-">
+                        <opaqueInsets>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                        </opaqueInsets>
+                    </Button>
+                </Group>
+                <VBox layoutX="322.0" layoutY="1.0" prefHeight="57.0" prefWidth="572.0">
+                    <Text fx:id="currentFileText" strokeType="OUTSIDE" strokeWidth="0.0" text="Current file: "
+                          wrappingWidth="350.13671875">
+                        <font>
+                            <Font size="13.0"/>
+                        </font>
+                        <VBox.margin>
+                            <Insets left="20.0" top="5.0"/>
+                        </VBox.margin>
+                    </Text>
+                    <Text fx:id="rgbStatsText" strokeType="OUTSIDE" strokeWidth="0.0"
+                          wrappingWidth="331.13671875">
+                        <font>
+                            <Font size="11.0"/>
+                        </font>
+                        <VBox.margin>
+                            <Insets left="20.0"/>
+                        </VBox.margin>
+                    </Text>
+                </VBox>
+                <Slider fx:id="timeSlider" blockIncrement="1.0" layoutX="934.0" layoutY="22.0" majorTickUnit="1.0"
+                        max="5.0" min="1.0" minorTickCount="0" showTickLabels="true" showTickMarks="true"
+                        snapToTicks="true" value="1.0"/>
+                <Text layoutX="960.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Slideshow speed"/>
+            </AnchorPane>
         </HBox>
     </top>
     <center>
