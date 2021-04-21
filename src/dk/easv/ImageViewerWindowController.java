@@ -61,17 +61,6 @@ public class ImageViewerWindowController {
         });
     }
 
-    private synchronized void slideStep(){
-        while(runSlide){
-            handleBtnNextAction();
-            try {
-                Thread.sleep(((int)timeSlider.getValue())*1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     private void colorCount() {
         Image image=images.get(currentImageIndex).getImage();
         PixelReader p=image.getPixelReader();
