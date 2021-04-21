@@ -1,18 +1,18 @@
-package dk.easv;
+package dk.easv.ui;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+import dk.easv.be.RGBResult;
+import dk.easv.be.SlideImage;
+import dk.easv.logic.ColorCounter;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelReader;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -37,14 +37,11 @@ public class ImageViewerWindowController {
 
     @FXML
     void initialize(){
-        timeSlider.setOnMouseReleased(event -> {
-            if(!runSlide) return;
-            timerChange();
-        });
+        timeSlider.setOnMouseReleased(event -> timerChange());
     }
 
     @FXML void handleBtnToggleSlide(){
-        if(runSlide){
+        if(runSlide) {
             stopSlide();
             return;
         }
@@ -61,6 +58,7 @@ public class ImageViewerWindowController {
     }
 
     private void timerChange(){
+        if(!runSlide) return;
         if(future!=null){
             future.cancel(true);
         }
@@ -68,41 +66,22 @@ public class ImageViewerWindowController {
     }
 
     private void colorCount() {
-        Image image=images.get(currentImageIndex).getImage();
-        PixelReader p=image.getPixelReader();
-        int w = (int) image.getWidth(), h = (int) image.getHeight(), pixelCount=w*h,
-                blueCount=0,greenCount=0,redCount=0;
-        for(int y = 0; y < h; y++) {
-            for(int x = 0; x < w; x++) {
-                Color myColor = p.getColor(x, y);
-                if(myColor.getBlue()> myColor.getRed()&&myColor.getBlue()> myColor.getGreen()){
-                    blueCount++;
-                }else if(myColor.getRed()> myColor.getBlue()&&myColor.getRed()> myColor.getGreen()){
-                    redCount++;
-                }else if(myColor.getGreen()> myColor.getRed()&&myColor.getGreen()>myColor.getBlue()){
-                    blueCount++;
-                }
-            }
-        }
-        rgbStatsText.setText("Red: "+redCount+" - "+(double)Math.round(((double)redCount/pixelCount)*100)+"%\n"+
-                "Green: "+greenCount+" - "+(double)Math.round(((double)greenCount/pixelCount)*100)+"%\n"+
-                "Blue: "+blueCount+" - "+(double)Math.round(((double)blueCount/pixelCount)*100)+"%\n"+
-                "Mixed: "+(pixelCount-redCount-greenCount-blueCount)+" - "+(double)Math.round(((double)(pixelCount-redCount-greenCount-blueCount)/pixelCount)*100)+"%");
+        ColorCounter cc=new ColorCounter(images.get(currentImageIndex).getImage());
+        RGBResult r=cc.getResult();
+        rgbStatsText.setText("Red: "+r.getRed()+" - "+r.getRedPercentage()+"%\n"+
+                             "Green: "+r.getGreen()+" - "+r.getGreenPercentage()+"%\n"+
+                             "Blue: "+r.getBlue()+" - "+r.getBluePercentage()+"%\n"+
+                             "Mixed: "+r.getMixed()+" - "+r.getMixedPercentage()+"%");
     }
 
     @FXML
     private void handleBtnLoadAction(){
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select image files");
-        fileChooser.getExtensionFilters().add(new ExtensionFilter("Images",
-                "*.png", "*.jpg", "*.gif", "*.tif", "*.bmp"));
+        fileChooser.getExtensionFilters().add(new ExtensionFilter("Images","*.png", "*.jpg", "*.gif", "*.tif", "*.bmp"));
         List<File> files = fileChooser.showOpenMultipleDialog(new Stage());
-        if (files.isEmpty()) return;
+        if(files==null||files.isEmpty()) return;
         files.forEach((File f)->images.add(new SlideImage(f)));
-        if(images.isEmpty()){
-            btnGroup.setDisable(true);
-            return;
-        }
         btnGroup.setDisable(false);
         displayImage();
     }
