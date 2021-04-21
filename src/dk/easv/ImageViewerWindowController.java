@@ -3,8 +3,7 @@ package dk.easv;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javafx.fxml.FXML;
@@ -33,8 +32,17 @@ public class ImageViewerWindowController {
     @FXML private Group btnGroup;
 
     boolean runSlide=false;
-    ExecutorService slideExecutor = Executors.newSingleThreadExecutor(); //@todo rewrite to use task approach.
-    ExecutorService colorCountExecutor=Executors.newSingleThreadExecutor(); //@todo rewrite to use task approach.
+    ScheduledExecutorService slideExecutor = Executors.newSingleThreadScheduledExecutor();
+    ScheduledFuture<?> future;
+    ExecutorService colorCountExecutor=Executors.newSingleThreadExecutor();
+
+    @FXML
+    void initialize(){
+        timeSlider.setOnMouseReleased(event -> {
+            if(!runSlide) return;
+            timerChange();
+        });
+    }
 
     @FXML void handleBtnStartSlide(){
         if(runSlide){
@@ -44,21 +52,20 @@ public class ImageViewerWindowController {
         if(images.isEmpty()) return;
         runSlide=true;
         btnStartSlide.setText("Stop slideshow...");
-        slideExecutor.submit(()->{
-            while(runSlide){
-                handleBtnNextAction();
-                try {
-                    Thread.sleep(((int)timeSlider.getValue())*1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        timerChange();
     }
 
     private void stopSlide(){
         runSlide=false;
+        future.cancel(false);
         btnStartSlide.setText("Start slideshow...");
+    }
+
+    private void timerChange(){
+        if(future!=null){
+            future.cancel(true);
+        }
+        future=slideExecutor.scheduleAtFixedRate(()-> handleBtnNextAction(),(int)timeSlider.getValue(),(int)timeSlider.getValue(), TimeUnit.SECONDS);
     }
 
     private void colorCount() {
@@ -86,7 +93,6 @@ public class ImageViewerWindowController {
 
     @FXML
     private void handleBtnLoadAction(){
-        stopSlide();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select image files");
         fileChooser.getExtensionFilters().add(new ExtensionFilter("Images",
