@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javafx.fxml.FXML;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
@@ -34,16 +35,16 @@ public class ImageViewerWindowController {
     @FXML private Text currentFileText;
     @FXML private Text rgbStatsText;
     @FXML private Slider timeSlider;
+    @FXML private Group btnGroup;
 
     boolean runSlide=false;
     ExecutorService slideExecutor = Executors.newSingleThreadExecutor(); //@todo rewrite to use task approach.
     ExecutorService colorCountExecutor=Executors.newSingleThreadExecutor(); //@todo rewrite to use task approach.
+    ExecutorService selectFilesExecutor=Executors.newSingleThreadExecutor();
 
     @FXML void handleBtnStartSlide(){
         if(runSlide){
-            runSlide=false;
-            btnStartSlide.setText("Start slideshow...");
-            slideExecutor.shutdown();
+            stopSlide();
             return;
         }
         if(images.isEmpty()) return;
@@ -59,6 +60,11 @@ public class ImageViewerWindowController {
                 }
             }
         });
+    }
+
+    private void stopSlide(){
+        runSlide=false;
+        btnStartSlide.setText("Start slideshow...");
     }
 
     private void colorCount() {
@@ -86,39 +92,41 @@ public class ImageViewerWindowController {
 
     @FXML
     private void handleBtnLoadAction(){
+        stopSlide();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select image files");
         fileChooser.getExtensionFilters().add(new ExtensionFilter("Images",
                 "*.png", "*.jpg", "*.gif", "*.tif", "*.bmp"));
         List<File> files = fileChooser.showOpenMultipleDialog(new Stage());
-        if (!files.isEmpty()){
-            files.forEach((File f)->images.add(new SlideImage(f)));
-            displayImage();
+        if (files.isEmpty()) return;
+        files.forEach((File f)->images.add(new SlideImage(f)));
+        if(images.isEmpty()){
+            btnGroup.setDisable(false);
+            return;
         }
+        btnGroup.setDisable(false);
+        displayImage();
     }
 
     @FXML
     private void handleBtnPreviousAction(){
-        if (!images.isEmpty()){
-            currentImageIndex = (currentImageIndex - 1 + images.size()) % images.size();
-            displayImage();
-        }
+        if (images.isEmpty()) return;
+        currentImageIndex = (currentImageIndex - 1 + images.size()) % images.size();
+        displayImage();
     }
 
     @FXML
     private void handleBtnNextAction(){
-        if (!images.isEmpty()){
-            currentImageIndex = (currentImageIndex + 1) % images.size();
-            displayImage();
-        }
+        if (images.isEmpty()) return;
+        currentImageIndex = (currentImageIndex + 1) % images.size();
+        displayImage();
     }
 
     private void displayImage(){
-        if (!images.isEmpty()){
-            SlideImage image =images.get(currentImageIndex);
-            currentFileText.setText("Current file: "+image.getName());
-            imageView.setImage(image.getImage());
-            colorCountExecutor.submit(this::colorCount);
-        }
+        if (images.isEmpty()) return;
+        SlideImage image =images.get(currentImageIndex);
+        currentFileText.setText("Current file: "+image.getName());
+        imageView.setImage(image.getImage());
+        colorCountExecutor.submit(this::colorCount);
     }
 }
