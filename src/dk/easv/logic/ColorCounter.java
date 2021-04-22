@@ -30,7 +30,7 @@ public class ColorCounter extends Task<Void> {
                 } else if (myColor.getRed() > myColor.getBlue() && myColor.getRed() > myColor.getGreen()) {
                     redCount++;
                 } else if (myColor.getGreen() > myColor.getRed() && myColor.getGreen() > myColor.getBlue()) {
-                    blueCount++;
+                    greenCount++;
                 }
                 RGBResult r=new RGBResult(pixelCount,redCount,greenCount,blueCount);
                 this.updateMessage("Red: " + r.getRed() + " - " + r.getRedPercentage() + "%\n" +
