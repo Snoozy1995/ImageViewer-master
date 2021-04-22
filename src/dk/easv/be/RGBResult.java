@@ -41,8 +41,4 @@ public class RGBResult {
     public double getMixedPercentage(){
         return (double)Math.round(((double)getMixed()/pixels)*100);
     }
-
-    public int getPixels() {
-        return pixels;
-    }
 }

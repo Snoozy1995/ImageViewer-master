@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-import dk.easv.be.RGBResult;
 import dk.easv.be.SlideImage;
 import dk.easv.logic.ColorCounter;
 import javafx.fxml.FXML;
@@ -21,6 +20,7 @@ import javafx.stage.Stage;
 public class ImageViewerWindowController {
     private final List<SlideImage> images = new ArrayList<>();
     private int currentImageIndex = 0;
+    boolean runSlide=false;
 
     @FXML private ImageView imageView;
     @FXML private Button btnToggleSlide;
@@ -30,48 +30,24 @@ public class ImageViewerWindowController {
     @FXML private Slider timeSlider;
     @FXML private Group btnGroup;
 
-    boolean runSlide=false;
     ScheduledExecutorService slideExecutor = Executors.newSingleThreadScheduledExecutor();
     ScheduledFuture<?> future;
-    ExecutorService colorCountExecutor=Executors.newSingleThreadExecutor();
 
     @FXML
     void initialize(){
-        timeSlider.setOnMouseReleased(event -> timerChange());
+        timeSlider.setOnMouseReleased(event -> resetTimer());
     }
 
-    @FXML void handleBtnToggleSlide(){
-        if(runSlide) {
+    @FXML
+    void handleBtnToggleSlide(){
+        if(runSlide) { //If slide is running already, stop it and return.
             stopSlide();
             return;
         }
-        if(images.isEmpty()) return;
+        if(images.isEmpty()) return; //Check that images isnt empty.
         runSlide=true;
         btnToggleSlide.setText("Stop slideshow...");
-        timerChange();
-    }
-
-    private void stopSlide(){
-        runSlide=false;
-        future.cancel(false);
-        btnToggleSlide.setText("Start slideshow...");
-    }
-
-    private void timerChange(){
-        if(!runSlide) return;
-        if(future!=null){
-            future.cancel(true);
-        }
-        future=slideExecutor.scheduleAtFixedRate(this::handleBtnNextAction,(int)timeSlider.getValue(),(int)timeSlider.getValue(), TimeUnit.SECONDS);
-    }
-
-    private void colorCount() {
-        ColorCounter cc=new ColorCounter(images.get(currentImageIndex).getImage());
-        RGBResult r=cc.getResult();
-        rgbStatsText.setText("Red: "+r.getRed()+" - "+r.getRedPercentage()+"%\n"+
-                             "Green: "+r.getGreen()+" - "+r.getGreenPercentage()+"%\n"+
-                             "Blue: "+r.getBlue()+" - "+r.getBluePercentage()+"%\n"+
-                             "Mixed: "+r.getMixed()+" - "+r.getMixedPercentage()+"%");
+        resetTimer();
     }
 
     @FXML
@@ -80,7 +56,7 @@ public class ImageViewerWindowController {
         fileChooser.setTitle("Select image files");
         fileChooser.getExtensionFilters().add(new ExtensionFilter("Images","*.png", "*.jpg", "*.gif", "*.tif", "*.bmp"));
         List<File> files = fileChooser.showOpenMultipleDialog(new Stage());
-        if(files==null||files.isEmpty()) return;
+        images.clear();
         files.forEach((File f)->images.add(new SlideImage(f)));
         btnGroup.setDisable(false);
         displayImage();
@@ -91,10 +67,32 @@ public class ImageViewerWindowController {
         if (images.isEmpty()) return;
         currentImageIndex = (currentImageIndex - 1 + images.size()) % images.size();
         displayImage();
+        resetTimer();
     }
 
     @FXML
     private void handleBtnNextAction(){
+        nextSlide();
+        resetTimer();
+    }
+
+    private void stopSlide(){
+        runSlide=false;
+        future.cancel(false); //Cancel any scheduled
+        btnToggleSlide.setText("Start slideshow...");
+    }
+
+    private void resetTimer(){
+        if(!runSlide) return;
+        if(future!=null){
+            //Cancel any prior scheduled.
+            future.cancel(true);
+        }
+        //Schedule thread for slideshow
+        future=slideExecutor.scheduleAtFixedRate(this::nextSlide,(int)timeSlider.getValue(),(int)timeSlider.getValue(), TimeUnit.SECONDS);
+    }
+
+    private void nextSlide(){
         if (images.isEmpty()) return;
         currentImageIndex = (currentImageIndex + 1) % images.size();
         displayImage();
@@ -102,9 +100,13 @@ public class ImageViewerWindowController {
 
     private void displayImage(){
         if (images.isEmpty()) return;
-        SlideImage image =images.get(currentImageIndex);
-        currentFileText.setText("Current file: "+image.getName());
-        imageView.setImage(image.getImage());
-        colorCountExecutor.submit(this::colorCount);
+        SlideImage image =images.get(currentImageIndex); //Get current SlideImage object
+        currentFileText.setText("Current file: "+image.getName()); //Get the filename to set text
+        imageView.setImage(image.getImage()); //Set image in view
+
+        ColorCounter cc=new ColorCounter(image.getImage());
+        cc.messageProperty().addListener((o,old,n)->rgbStatsText.setText(n));
+        ExecutorService exe = Executors.newSingleThreadExecutor();
+        exe.submit(cc);
     }
 }
